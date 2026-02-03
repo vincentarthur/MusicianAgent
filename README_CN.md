@@ -122,19 +122,31 @@ sequenceDiagram
 
 您可以通过交互式 CLI 或 Web UI 运行编排系统。
 
-#### 步骤 1：启动 Web UI（推荐）
-Web UI 提供了代理间对话的最佳可视化体验。
+#### 步骤 2：启动高级工作站 (v0.2 Premium Studio)
+这是体验玻璃拟态 UI、实时日志和多轨混合的最佳方式。
+
+1.  **启动 ADK 后端引擎**:
+    ```bash
+    PYTHONPATH=. ./.venv/bin/adk api_server agents/
+    ```
+    *请保持此终端开启。*
+
+2.  **启动 Premium Bridge (前端)**:
+    ```bash
+    # 在新终端中运行
+    python3 api_server.py
+    ```
+
+3.  **访问 Studio**: 在浏览器中打开 [http://localhost:8080](http://localhost:8080)。
+
+#### 步骤 3：启动标准 ADK Web UI
+如果您更喜欢原始的 ADK 界面：
 ```bash
-# 在项目根目录下运行
 PYTHONPATH=. ./.venv/bin/adk web agents/
 ```
-1. 访问 [http://127.0.0.1:8000](http://127.0.0.1:8000)。
-2. 在应用列表中选择 **Music_Orchestrator**。
-3. 输入需求，例如：*"创作一首带有沉重底鼓的暗黑科技舞曲 (Dark Techno)。"*
-4. **通过日志观察**：您将看到 Orchestrator 的思考过程，以及它如何调用乐理专家和合成专家。
+访问 [http://localhost:8000](http://localhost:8000)。
 
-#### 步骤 2：交互式 CLI 模式
-如果您更喜欢终端操作：
+#### 步骤 4：交互式 CLI 模式
 ```bash
 PYTHONPATH=. ./.venv/bin/adk run agents/orchestrator
 ```
