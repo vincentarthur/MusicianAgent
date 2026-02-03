@@ -2,6 +2,9 @@
 
 This project implements a professional music orchestration system using the **Google Agent Development Kit (ADK)** and **Gemini 3 Flash Preview**. It leverages a hierarchical multi-agent architecture to decompose complex musical requests into specific, high-quality audio tracks.
 
+## Overview
+![Overview](readme_imgs/image.png)
+
 ## 🎵 Features
 - **Hierarchical Orchestration**: A central "Maestro" orchestrator coordinating specialized sub-agents.
 - **Music Theory Alignment**: A Musicologist agent ensuring harmonic and rhythmic consistency.
@@ -52,6 +55,56 @@ sequenceDiagram
 | **Percussion Expert** | 🥁 | **Rhythm Specialist**: Crafts detailed, texture-rich prompts for Lyria 2 based on the requested vibe and generates the rhythm stems. | "Heavy industrial drum kit with distorted kicks" |
 | **String Expert** | 🎻 | **Melodic Specialist**: Focuses on emotive layers like violins and pads, ensuring melodic alignment with the Musicologist's theory. | "Emotive cello solo with lush reverb" |
 | **Audio Engineer** | 🎚 | **Post-Production**: Mixes individual stems into a `master_mix.wav` and registers all files as ADK Artifacts for manual playback. | "Mix the percussion and strings into a final master" |
+
+<details>
+<summary><b>🔍 Deep Dive: Agent Implementation Principles (Technical)</b></summary>
+
+#### 1. Orchestrator (The Maestro)
+- **Principle**: State-Driven Hierarchical Coordination.
+- **Workflow**:
+    - **Session Management**: Initializes and updates `MusicSessionState` (BPM, Key, Track List).
+    - **A2A Delegation**: Orchestrates the communication flow via the ADK `InvocationContext`.
+    - **Metadata Propagation**: Ensures sub-agent "prompts used" are socialized to the global state for UI transparency.
+    - **Trigger**: Holds final execution until all stems are registered in the state.
+
+#### 2. Musicologist (The Specialist)
+- **Principle**: Harmonic & Structural Constraints.
+- **Workflow**:
+    - **Technical Guidance**: Maps abstract moods (e.g., "Grandeur") to technical specs (e.g., "100 BPM, D Minor").
+    - **Validation**: Uses `alignment_check_tool` to verify that the Maestro's plan remains musically coherent.
+
+#### 3. Synthesis Experts (Percussion & String)
+- **Principle**: Self-Healing Synthesis Loop with Lyria 2.
+- **Implementation**:
+    - **Core Engine**: Direct REST API integration with **Google Lyria 2 (lyria-002)** on Vertex AI (`us-central1`).
+    - **Self-Healing Algorithm**: 
+        - If a prompt is blocked by safety filters (e.g., violent imagery or specific IP), the agent receives a specific error signal.
+        - **Reflection**: The agent analyzes the rejected prompt using Gemini 3.
+        - **Refactor**: Rewrites the prompt using musically descriptive but neutral terms (e.g., "War Drums" → "Intense Cinematic Industrial Percussion") and retries automatically.
+    - **Artifact Handling**: Saves raw bytes as `ADK Part` objects and provides sidecar `.json` metadata for the Premium UI.
+
+#### 4. Audio Engineer (The Producer)
+- **Principle**: DSP-based Multi-Track Summing.
+- **Implementation**:
+    - **Numpy Engine**: Converts all WAV stems into `float32` numerical buffers.
+    - **Time Alignment**: Pads shorter tracks with silence to ensure perfect synchronization across the timeline.
+    - **Additive Mixing**: Per-sample mathematical summing of buffers to create a true multi-instrument ensemble (not simple concatenation).
+    - **Clipping Protection**: Applies a safety clip layer to prevent 16-bit PCM overflow distortion during high-energy transients.
+</details>
+
+<details>
+<summary><b>🛠 The Maestro's Toolbox (Capabilities Table)</b></summary>
+
+| Agent | Tool Name | Functionality | Technical Logic |
+| :--- | :--- | :--- | :--- |
+| **Orchestrator** | `music_theory_alignment_tool` | Theory Validation | Delegates cross-agent verification to ensure the sequence remains harmonically valid before synthesis. |
+| **Musicologist** | `alignment_check_tool` | Structural Audit | Performs a final check on BPM and Key parameters against the current track structure. |
+| **Percussion** | `generate_audio_tool` | Rhythm Synthesis | Invokes Lyria 2 via REST; implements local WAV persistence and ADK artifact registration. |
+| **Strings** | `generate_audio_tool` | Melodic Synthesis | Similar to Percussion but optimized for orchestral and melodic timbres. |
+| **Audio Engineer** | `mix_tracks_tool` | Advanced Mixing | Performs sample-rate aligned summing of buffers using `numpy` with 16-bit integer clipping. |
+| **Audio Engineer** | `play_audio_tool` | UI Integration | Registers generated masters in the ADK Artifact panel for manual user interaction. |
+
+</details>
 
 ## 🚀 Getting Started
 
