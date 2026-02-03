@@ -17,12 +17,12 @@
 系统采用 **“指挥官-蜂群” (Maestro-Swarm)** 模式。以下是代理间的协作流程：
 
 ```mermaid
-sequence_flow
+sequenceDiagram
     actor User as 用户
-    participant Orchestrator as "🎻 编排代理 (指挥官)"
-    participant Musicologist as "🎹 乐理专家 (理论)"
-    participant Synthesis as "🎸 合成代理 (乐手)"
-    participant Engineer as "🎚 音频工程师"
+    participant Orchestrator as 🎻 编排代理 (指挥官)
+    participant Musicologist as 🎹 乐理专家 (理论)
+    participant Synthesis as 🎸 合成代理 (乐乐手)
+    participant Engineer as 🎚 音频工程师
 
     User->>Orchestrator: "创作一首史诗级电影配乐"
     activate Orchestrator

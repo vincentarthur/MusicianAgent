@@ -17,12 +17,12 @@ This project implements a professional music orchestration system using the **Go
 The system uses a **Maestro-Swarm** pattern. Here is how the agents collaborate:
 
 ```mermaid
-sequence_flow
+sequenceDiagram
     actor User
-    participant Orchestrator as "🎻 Orchestrator (Maestro)"
-    participant Musicologist as "🎹 Musicologist (Theory)"
-    participant Synthesis as "🎸 Synthesis Agents (Players)"
-    participant Engineer as "🎚 Audio Engineer"
+    participant Orchestrator as 🎻 Orchestrator (Maestro)
+    participant Musicologist as 🎹 Musicologist (Theory)
+    participant Synthesis as 🎸 Synthesis Agents (Players)
+    participant Engineer as 🎚 Audio Engineer
 
     User->>Orchestrator: "Epic Cinematic Music"
     activate Orchestrator
