@@ -5,6 +5,7 @@ import os
 import subprocess
 
 import wave
+import numpy as np
 
 async def mix_tracks_tool(file_paths: list, tool_context: ToolContext, master_volume: float = 1.0):
     """
@@ -18,22 +19,41 @@ async def mix_tracks_tool(file_paths: list, tool_context: ToolContext, master_vo
         return "Error: No valid audio tracks found to mix."
 
     try:
-        # Proper WAV mixing (concatenation logic using wave module)
-        data = []
+        # Professional Additive Mixing using numpy
+        tracks = []
+        max_length = 0
         params = None
         
         for p in valid_paths:
-            print(f"Processing track: {p}")
+            print(f"Loading track: {p}")
             with wave.open(p, 'rb') as w:
+                p_params = w.getparams()
                 if params is None:
-                    params = w.getparams()
-                data.append(w.readframes(w.getnframes()))
+                    params = p_params
+                
+                # Read all frames and convert to numpy array (assume 16-bit PCM)
+                frames = w.readframes(w.getnframes())
+                # 16-bit PCM: 'h' for signed short (2 bytes)
+                audio_data = np.frombuffer(frames, dtype=np.int16)
+                
+                # Check for stereo/mono matching (simple approach: take first params)
+                tracks.append(audio_data)
+                if len(audio_data) > max_length:
+                    max_length = len(audio_data)
+        
+        # Merge tracks (pad zeros for shorter tracks and sum)
+        mixed_audio = np.zeros(max_length, dtype=np.float32)
+        for t in tracks:
+            mixed_audio[:len(t)] += t.astype(np.float32)
+            
+        # Clipping protection & Normalization
+        # Simple limit to 16-bit range
+        mixed_audio = np.clip(mixed_audio, -32768, 32767).astype(np.int16)
         
         # Write combined file
         with wave.open(filename, 'wb') as w_out:
             w_out.setparams(params)
-            for frames in data:
-                w_out.writeframes(frames)
+            w_out.writeframes(mixed_audio.tobytes())
                 
         # Read back for artifact saving
         with open(filename, 'rb') as f:

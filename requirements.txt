@@ -1,0 +1,10 @@
+google-adk
+google-genai
+fastapi
+uvicorn
+httpx
+python-multipart
+python-dotenv
+websockets
+sse-starlette
+numpy
