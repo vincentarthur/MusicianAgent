@@ -1,0 +1,4 @@
+*.wav
+.adk
+.venv
+__pycache__
