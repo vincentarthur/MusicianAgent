@@ -122,6 +122,12 @@ sequenceDiagram
 
 您可以通过交互式 CLI 或 Web UI 运行编排系统。
 
+#### 步骤 1：环境配置
+确保您已通过 Google Cloud 认证并拥有 Gemini 模型的访问权限：
+```bash
+gcloud auth application-default login
+```
+
 #### 步骤 2：启动高级工作站 (v0.2 Premium Studio)
 这是体验玻璃拟态 UI、实时日志和多轨混合的最佳方式。
 
@@ -151,7 +157,7 @@ PYTHONPATH=. ./.venv/bin/adk web agents/
 PYTHONPATH=. ./.venv/bin/adk run agents/orchestrator
 ```
 
-#### 步骤 3：验证输出
+#### 步骤 5：验证输出
 - 代理将模拟音频生成过程（目前使用模拟文件名）。
 - 您可以在最终响应中看到音轨列表和“母带”路径。
 

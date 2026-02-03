@@ -126,18 +126,31 @@ Ensure you have authenticated with Google Cloud and have access to the Gemini mo
 gcloud auth application-default login
 ```
 
-#### Step 2: Launch the Web UI (Recommended)
-The Web UI provides the best visibility into how agents talk to each other.
+#### Step 2: Launch Premium Studio (v0.2 Dashboard)
+This is the recommended way to experience the glassmorphic UI, real-time logs, and multi-track mixing.
+
+1.  **Start the ADK Engine (Background)**:
+    ```bash
+    PYTHONPATH=. ./.venv/bin/adk api_server agents/
+    ```
+    *Keep this terminal running.*
+
+2.  **Start the Premium Bridge (Frontend)**:
+    ```bash
+    # In a new terminal
+    python3 api_server.py
+    ```
+
+3.  **Access the Studio**: Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+#### Step 3: Standard ADK Web UI
+If you prefer the original ADK interface:
 ```bash
-# From the project root
 PYTHONPATH=. ./.venv/bin/adk web agents/
 ```
-1. Open [http://127.0.0.1:8000](http://127.0.0.1:8000).
-2. Select **Music_Orchestrator** from the app list.
-3. Type a prompt like: *"Create a dark techno track with a heavy bassline."*
-4. **Observe the Logs**: You will see the Orchestrator "Thinking" and then calling tools that involve the Musicologist and Synthesis experts.
+Open [http://localhost:8000](http://localhost:8000).
 
-#### Step 3: Interactive CLI Mode (Fast Prototyping)
+#### Step 4: Interactive CLI Mode
 If you prefer the terminal:
 ```bash
 PYTHONPATH=. ./.venv/bin/adk run agents/orchestrator
@@ -146,7 +159,7 @@ PYTHONPATH=. ./.venv/bin/adk run agents/orchestrator
 - The CLI will show "Delegating..." messages as the A2A protocol works in the background.
 - Type `exit` when finished.
 
-#### Step 4: Verify Outputs
+#### Step 5: Verify Outputs
 - The agents will simulate audio generation (mocking filenames for now).
 - You can find the simulated track list and "Master Mix" path in the final agent response.
 
