@@ -59,11 +59,25 @@ async def generate_audio_tool(prompt: str, instrument: str, tool_context: ToolCo
                 
                 if audio_b64:
                     audio_data = base64.b64decode(audio_b64)
-                    filename = f"output_{instrument.lower().replace(' ', '_')}.wav"
+                    # Sanitize filename: no commas, no spaces
+                    clean_inst = instrument.lower().replace(',', '').replace(' ', '_')
+                    filename = f"output_{clean_inst}.wav"
                     
                     await tool_context.save_artifact(
                         filename=filename,
                         artifact=types.Part.from_bytes(data=audio_data, mime_type="audio/wav")
+                    )
+                    
+                    # Save sidecar metadata artifact for UI
+                    metadata = {
+                        "prompt": prompt,
+                        "instrument": instrument,
+                        "type": "audio_chunk"
+                    }
+                    metadata_json = json.dumps(metadata, indent=2).encode('utf-8')
+                    await tool_context.save_artifact(
+                        filename=f"{filename}.json",
+                        artifact=types.Part.from_bytes(data=metadata_json, mime_type="application/json")
                     )
                     
                     with open(filename, 'wb') as f:

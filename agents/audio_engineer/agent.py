@@ -4,40 +4,51 @@ from google.genai import types
 import os
 import subprocess
 
+import wave
+
 async def mix_tracks_tool(file_paths: list, tool_context: ToolContext, master_volume: float = 1.0):
     """
-    Mix multiple WAV files into a single output file. 
-    In this simulation, we combine the data from all tracks.
+    Mix multiple WAV files into a single output file using the wave module.
     """
     print(f"Mixing tracks: {', '.join(file_paths)} into master_mix.wav...")
     filename = "master_mix.wav"
     
-    master_data = b""
-    valid_tracks = []
-    
-    for path in file_paths:
-        if os.path.exists(path):
-            try:
-                with open(path, 'rb') as f:
-                    # Basic simulation: Concatenate data (not real mixing but uses all files)
-                    master_data += f.read()
-                    valid_tracks.append(path)
-            except Exception as e:
-                print(f"Warning: Could not read {path}: {e}")
-    
-    if not master_data:
-        master_data = b"MOCK_MASTER_MIX_EMPTY"
-            
-    with open(filename, 'wb') as f_out:
-        f_out.write(master_data)
+    valid_paths = [p for p in file_paths if os.path.exists(p) and p.lower().endswith('.wav')]
+    if not valid_paths:
+        return "Error: No valid audio tracks found to mix."
+
+    try:
+        # Proper WAV mixing (concatenation logic using wave module)
+        data = []
+        params = None
         
-    print(f"Saving {filename} as ADK artifact with {len(valid_tracks)} tracks...")
-    await tool_context.save_artifact(
-        filename=filename,
-        artifact=types.Part.from_bytes(data=master_data, mime_type="audio/wav")
-    )
-    
-    return f"Successfully mixed {len(valid_tracks)} tracks ({', '.join(valid_tracks)}) into {filename}"
+        for p in valid_paths:
+            print(f"Processing track: {p}")
+            with wave.open(p, 'rb') as w:
+                if params is None:
+                    params = w.getparams()
+                data.append(w.readframes(w.getnframes()))
+        
+        # Write combined file
+        with wave.open(filename, 'wb') as w_out:
+            w_out.setparams(params)
+            for frames in data:
+                w_out.writeframes(frames)
+                
+        # Read back for artifact saving
+        with open(filename, 'rb') as f:
+            master_data = f.read()
+
+        print(f"Saving {filename} as ADK artifact with {len(valid_paths)} tracks...")
+        await tool_context.save_artifact(
+            filename=filename,
+            artifact=types.Part.from_bytes(data=master_data, mime_type="audio/wav")
+        )
+        return f"Successfully mixed {len(valid_paths)} tracks into {filename}"
+        
+    except Exception as e:
+        print(f"Mixing failed: {e}")
+        return f"Error during audio mixing: {e}"
 
 async def play_audio_tool(file_path: str, tool_context: ToolContext):
     """
